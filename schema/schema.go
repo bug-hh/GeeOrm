@@ -27,6 +27,19 @@ func (schema *Schema) GetField(name string) *Field {
 	return schema.fieldMap[name]
 }
 
+/*
+将 User{Name: "Tom", Age: 18} 转换成 ("Tom", 18)
+*/
+func (schema *Schema) RecordValues(dest interface{}) []interface{} {
+	destValue := reflect.Indirect(reflect.ValueOf(dest))
+
+	var fieldValues []interface{}
+	for _, field := range schema.Fields {
+		fieldValues = append(fieldValues, destValue.FieldByName(field.Name).Interface())
+	}
+	return fieldValues
+}
+
 // 将任意的对象解析为 Schema 实例
 func Parse(dest interface{}, d dialect.Dialect) *Schema {
 	modelType := reflect.Indirect(reflect.ValueOf(dest)).Type()

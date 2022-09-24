@@ -1,9 +1,8 @@
-package session_test
+package session
 
 import (
 	"testing"
 
-	geeorm "github.com/GeeOrm"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -13,14 +12,19 @@ type User struct {
 }
 
 func TestSession_CreateTable(t *testing.T) {
-	engine, _ := geeorm.NewEngine("sqlite3", "gee.db")
-	defer engine.Close()
-	s := engine.NewSession().Model(&User{})
-
+	s := NewSession().Model(&User{})
 	_ = s.DropTable()
 	_ = s.CreateTable()
-
 	if !s.HasTable() {
-		t.Fatal("Failed to create table user")
+		t.Fatal("Failed to create table User")
+	}
+}
+
+func TestSession_Model(t *testing.T) {
+	s := NewSession().Model(&User{})
+	table := s.RefTable()
+	s.Model(&Session{})
+	if table.Name != "User" || s.RefTable().Name != "Session" {
+		t.Fatal("Failed to change model")
 	}
 }
